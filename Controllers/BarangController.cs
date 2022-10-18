@@ -7,15 +7,16 @@ namespace RAS.Bootcamp.API.net.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class BarangController : ControllerBase{
-    private readonly dbmarketContext _dbcontext;
+public class BarangController : Controller{
+ private readonly IRepository<Barang> _barang;
 
-    public BarangController (dbmarketContext dbcontext){
-        _dbcontext = dbcontext;
+
+    public BarangController (IRepository<Barang> barang){
+        _barang = barang;
     }
     [HttpGet]
     public IActionResult Barang(){
-        var product = _dbcontext.Barangs.ToList();
+        var product = _barang.GetList();
         return Ok(product);
     }
     [HttpPost]
@@ -27,23 +28,23 @@ public class BarangController : ControllerBase{
             Harga = req.Harga,
             Description = req.Description,
             Stok = req.Stok,
-            IdPenjual = req.IdPenjual
+            // IdPenjual = req.IdPenjual
+            IdPenjual = 5
         };
 
-        _dbcontext.Barangs.Add(barang);
-        _dbcontext.SaveChanges();
+        _barang.Add(barang);
         return Created("",barang);
     }
 
     [HttpGet("{id}")]
     public IActionResult DetailBarang(int id){
-        var product = _dbcontext.Barangs.FirstOrDefault(x => x.Id == id);
+        var product = _barang.Get(id);
         return Ok(product);
     }
 
     [HttpPut("{id}")]
     public IActionResult UpdateBarang(int id, RequestBarang req){
-        var product = _dbcontext.Barangs.FirstOrDefault(x => x.Id == id);
+        var product = _barang.Get(id);
         if (product == null){
             return NotFound();
         };
@@ -52,18 +53,12 @@ public class BarangController : ControllerBase{
         product.Harga = req.Harga;
         product.Description = req.Description;
         product.Stok = req.Stok;
-        product.IdPenjual = req.IdPenjual;
-        _dbcontext.SaveChanges();
+        _barang.Update(product);
         return Ok(product);    
     }
     [HttpDelete("{id}")]
-    public IActionResult DeleteBarang(int id){
-        var product = _dbcontext.Barangs.FirstOrDefault(x => x.Id == id);
-        if (product == null){
-            return NotFound();
-        };
-        _dbcontext.Barangs.Remove(product);
-        _dbcontext.SaveChanges();
+    public IActionResult DeleteBarang(int id){ 
+        _barang.Remove(id);
         return Ok();    
     }
 }

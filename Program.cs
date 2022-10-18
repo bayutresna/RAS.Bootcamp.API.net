@@ -7,6 +7,8 @@ builder.Services.AddDbContext<dbmarketContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("Connection"))
 );
 
+builder.Services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+
 // Add services to the container.
 
 builder.Services.AddControllers();

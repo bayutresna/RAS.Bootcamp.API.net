@@ -8,15 +8,15 @@ namespace RAS.Bootcamp.API.net.Controllers;
 [Route("[controller]")]
 
 public class PembeliController : ControllerBase{
-    private readonly dbmarketContext _dbcontext;
+    private readonly IRepository<Pembeli> _pembeli;
 
-    public PembeliController (dbmarketContext dbcontext){
-        _dbcontext = dbcontext;
+    public PembeliController (IRepository<Pembeli> pembeli){
+        _pembeli = pembeli;
     }
     
     [HttpGet]
     public IActionResult Pembeli(){
-        var pembeli = _dbcontext.Pembelis.ToList();
+        var pembeli = _pembeli.GetList();
         return Ok(pembeli);
     }
     [HttpPost]
@@ -24,38 +24,33 @@ public class PembeliController : ControllerBase{
         var pembeli = new Pembeli()
         {
             NamaPembeli = req.NamaPembeli,
-            AlamatPembeli = req.AlamatPembeli
+            AlamatPembeli = req.AlamatPembeli,
+            IdUser = 1
         };
 
-        _dbcontext.Pembelis.Add(pembeli);
-        _dbcontext.SaveChanges();
+        _pembeli.Add(pembeli);
         return Created("",pembeli);
     }
     [HttpGet("{id}")]
     public IActionResult DetailPembeli(int id){
-        var pembeli = _dbcontext.Pembelis.FirstOrDefault(x => x.Id == id);
+        var pembeli = _pembeli.Get(id);
         return Ok(pembeli);
     }
 
     [HttpPut("{id}")]
     public IActionResult UpdatePembeli(int id, RequestPembeli req){
-        var pembeli = _dbcontext.Pembelis.FirstOrDefault(x => x.Id == id);
+        var pembeli = _pembeli.Get(id);
         if (pembeli == null){
             return NotFound();
         };
         pembeli.NamaPembeli = req.NamaPembeli;
         pembeli.AlamatPembeli = req.AlamatPembeli;
-        _dbcontext.SaveChanges();
+        _pembeli.Update(pembeli);
         return Ok(pembeli);    
     }
     [HttpDelete("{id}")]
     public IActionResult DeletePembeli(int id){
-        var pembeli = _dbcontext.Pembelis.FirstOrDefault(x => x.Id == id);
-        if (pembeli == null){
-            return NotFound();
-        };
-        _dbcontext.Pembelis.Remove(pembeli);
-        _dbcontext.SaveChanges();
+        _pembeli.Remove(id);
         return Ok();    
     }
 }

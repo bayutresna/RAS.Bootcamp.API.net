@@ -7,15 +7,15 @@ namespace RAS.Bootcamp.API.net.Controllers;
 [Route("[controller]")]
 
 public class PenjualController : ControllerBase{
-    private readonly dbmarketContext _dbcontext;
+    private readonly IRepository<Penjual> _penjual;
 
-    public PenjualController (dbmarketContext dbcontext){
-        _dbcontext = dbcontext;
+    public PenjualController (IRepository<Penjual> penjual){
+        _penjual = penjual;
     }
     
     [HttpGet]
     public IActionResult Penjual(){
-        var penjual = _dbcontext.Penjuals.ToList();
+        var penjual = _penjual.GetList();
         return Ok(penjual);
     }
        [HttpPost]
@@ -23,38 +23,33 @@ public class PenjualController : ControllerBase{
         var penjual = new Penjual()
         {
             NamaToko = req.NamaToko,
-            Alamat = req.Alamat
+            Alamat = req.Alamat,
+            IdUser = 1
         };
 
-        _dbcontext.Penjuals.Add(penjual);
-        _dbcontext.SaveChanges();
+        _penjual.Add(penjual);
         return Created("",penjual);
     }
     [HttpGet("{id}")]
     public IActionResult DetailPenjual(int id){
-        var penjual = _dbcontext.Penjuals.FirstOrDefault(x => x.Id == id);
+        var penjual = _penjual.Get(id);
         return Ok(penjual);
     }
 
     [HttpPut("{id}")]
     public IActionResult UpdatePenjual(int id, RequestPenjual req){
-        var penjual = _dbcontext.Penjuals.FirstOrDefault(x => x.Id == id);
+        var penjual = _penjual.Get(id);
         if (penjual == null){
             return NotFound();
         };
         penjual.NamaToko = req.NamaToko;
         penjual.Alamat = req.Alamat;
-        _dbcontext.SaveChanges();
+        _penjual.Update(penjual);
         return Ok(penjual);    
     }
     [HttpDelete("{id}")]
     public IActionResult DeletePenjual(int id){
-        var penjual = _dbcontext.Penjuals.FirstOrDefault(x => x.Id == id);
-        if (penjual == null){
-            return NotFound();
-        };
-        _dbcontext.Penjuals.Remove(penjual);
-        _dbcontext.SaveChanges();
+        _penjual.Remove(id);
         return Ok();    
     }
 
